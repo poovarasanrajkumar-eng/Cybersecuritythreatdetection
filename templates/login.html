@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NP² Cybersecurity - Secure login with OTP authentication for AI-powered threat detection system">
+    <meta name="keywords" content="cybersecurity, threat detection, XGBoost, network security, OTP authentication">
+    <meta name="author" content="NP² Cybersecurity">
+
+    <title>NP² Cybersecurity - Secure Login</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/base.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/components.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/layout.css') }}" as="style">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+
+    <!-- Security headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+</head>
+
+<body>
+    <!-- Background Animation -->
+    <div class="background-animation" aria-hidden="true"></div>
+
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+
+    <!-- Main Login Container -->
+    <main id="main-content" class="login-container" role="main">
+        <div class="login-card fade-in">
+            <!-- Login Header -->
+            <header class="login-logo">
+                <h1>NP² Cybersecurity</h1>
+                <p class="login-subtitle">AI-Powered Threat Detection System</p>
+                <div class="security-badge" role="status" aria-label="Security feature">
+                    <span aria-hidden="true">🔒</span> Secure OTP Authentication
+                </div>
+            </header>
+
+            <!-- Login Form -->
+            <div class="login-form" role="form">
+                <!-- Email Section -->
+                <section id="email-section" class="form-section" aria-labelledby="email-heading">
+                    <h2 id="email-heading" class="sr-only">Enter Email Address</h2>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <span aria-hidden="true">📧</span> Email Address
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input"
+                            placeholder="Enter your email address" 
+                            required 
+                            autocomplete="email"
+                            aria-describedby="email-help"
+                            autocapitalize="none"
+                            spellcheck="false"
+                        >
+                        <div id="email-help" class="sr-only">Enter your email address to receive a one-time password</div>
+                    </div>
+
+                    <button 
+                        type="button" 
+                        id="send-otp-btn" 
+                        class="btn btn-primary btn-full"
+                        aria-describedby="send-otp-help"
+                    >
+                        Send OTP
+                    </button>
+                    <div id="send-otp-help" class="sr-only">Click to send one-time password to your email</div>
+                </section>
+
+                <!-- OTP Section -->
+                <section id="otp-section" class="form-section hidden" aria-labelledby="otp-heading">
+                    <h2 id="otp-heading" class="sr-only">Enter One-Time Password</h2>
+
+                    <div class="form-group">
+                        <label for="otp" class="form-label">
+                            <span aria-hidden="true">🔑</span> Enter OTP
+                        </label>
+                        <input 
+                            type="text" 
+                            id="otp" 
+                            name="otp" 
+                            class="form-input"
+                            placeholder="Enter 6-digit OTP" 
+                            maxlength="6" 
+                            required
+                            autocomplete="one-time-code"
+                            aria-describedby="otp-help"
+                            inputmode="numeric"
+                            pattern="[0-9]{6}"
+                        >
+                        <div id="otp-help" class="sr-only">Enter the 6-digit code sent to your email</div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button 
+                            type="button" 
+                            id="verify-otp-btn" 
+                            class="btn btn-primary btn-full"
+                            aria-describedby="verify-otp-help"
+                        >
+                            Verify &amp; Login
+                        </button>
+                        <div id="verify-otp-help" class="sr-only">Click to verify your OTP and login</div>
+
+                        <button 
+                            type="button" 
+                            id="back-btn" 
+                            class="btn btn-secondary btn-full"
+                            aria-label="Go back to email input"
+                        >
+                            <span aria-hidden="true">←</span> Back to Email
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Message Container -->
+                <div id="message-container" role="status" aria-live="polite" aria-atomic="true"></div>
+            </div>
+
+            <!-- Features Section -->
+            <aside class="features-section" role="complementary" aria-labelledby="features-heading">
+                <h3 id="features-heading" class="features-title">
+                    <span aria-hidden="true">🛡️</span> Security Features
+                </h3>
+                <ul class="features-list" role="list">
+                    <li role="listitem">XGBoost AI threat detection</li>
+                    <li role="listitem">Real-time network monitoring</li>
+                    <li role="listitem">Email threat alerts</li>
+                    <li role="listitem">Live vulnerability scanning</li>
+                    <li role="listitem">Comprehensive threat reports</li>
+                </ul>
+            </aside>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/auth.js') }}" defer></script>
+
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "NP² Cybersecurity",
+        "description": "AI-powered cybersecurity threat detection system with XGBoost machine learning",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+</body>
+</html>

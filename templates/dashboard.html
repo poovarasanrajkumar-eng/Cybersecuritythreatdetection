@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NP² Cybersecurity Dashboard - AI-powered threat detection, network monitoring, and security analysis">
+    <meta name="keywords" content="cybersecurity dashboard, threat detection, network security, XGBoost, real-time monitoring">
+    <meta name="author" content="NP² Cybersecurity">
+
+    <title>NP² Cybersecurity Dashboard</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/base.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/components.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/layout.css') }}" as="style">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+
+    <!-- Security headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <!-- Additional meta for dashboard -->
+    <meta name="robots" content="noindex, nofollow">
+</head>
+
+<body>
+    <!-- Skip Links for Accessibility -->
+    <nav aria-label="Skip links" class="sr-only">
+        <a href="#main-content">Skip to main content</a>
+        <a href="#navigation">Skip to navigation</a>
+    </nav>
+
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-logo">
+                    <h1>
+                        <span aria-hidden="true">🛡️</span>
+                        NP² Cybersecurity Dashboard 
+                    </h1>
+                </div>
+
+                <nav id="navigation" class="header-nav" role="navigation" aria-label="User navigation">
+                    <div class="user-info">
+                        <div class="user-email" role="status" aria-label="Logged in user">
+                            <span aria-hidden="true">📧</span>
+                            <span>{{ user_email }}</span>
+                        </div>
+                        <a href="/logout" class="btn btn-danger btn-sm" role="button" aria-label="Log out of system">
+                            <span aria-hidden="true"></span> Logout
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Model Status Indicator -->
+    <aside class="status-indicator" role="complementary" aria-labelledby="model-status-heading">
+        <h2 id="model-status-heading" class="sr-only">Model Status</h2>
+        <div id="model-indicator" role="status" aria-live="polite">
+            <span class="loading-spinner"></span> Checking model status...
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content" role="main">
+        <div class="container">
+            <!-- Dashboard Statistics -->
+            <section class="dashboard-stats" aria-labelledby="stats-heading">
+                <h2 id="stats-heading" class="sr-only">Security Statistics</h2>
+                <div class="grid grid-auto-sm">
+                    <div class="stat-card slide-in-left">
+                        <div id="total-scans" class="stat-number threat-info" aria-label="Total scans performed">0</div>
+                        <div class="stat-label">Total Scans</div>
+                    </div>
+                    <div class="stat-card slide-in-left" style="animation-delay: 0.1s;">
+                        <div id="total-threats" class="stat-number threat-high" aria-label="Total threats detected">0</div>
+                        <div class="stat-label">Threats Detected</div>
+                    </div>
+                    <div class="stat-card slide-in-left" style="animation-delay: 0.2s;">
+                        <div id="high-risk-threats" class="stat-number threat-medium" aria-label="High risk threats">0</div>
+                        <div class="stat-label">High Risk Threats</div>
+                    </div>
+                    <div class="stat-card slide-in-left" style="animation-delay: 0.3s;">
+                        <div id="scanning-status" class="stat-number threat-info" aria-label="Live scanning status">Stopped</div>
+                        <div class="stat-label">Live Scanning</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Tools -->
+            <section class="analysis-tools" aria-labelledby="tools-heading">
+                <h2 id="tools-heading" class="sr-only">Analysis Tools</h2>
+                <div class="grid grid-auto">
+
+                    <!-- URL Analysis Card -->
+                    <article class="card slide-in-right" role="region" aria-labelledby="url-analysis-heading">
+                        <header class="card-header">
+                            <h3 id="url-analysis-heading" class="card-title">
+                                <span aria-hidden="true">🔗</span> URL Threat Analysis
+                            </h3>
+                            <p class="card-description">
+                                Analyze any URL for potential security threats using advanced XGBoost AI detection.
+                            </p>
+                        </header>
+
+                        <div class="card-body">
+                            <form class="analysis-form" role="form" aria-labelledby="url-analysis-heading">
+                                <div class="form-group">
+                                    <label for="url-input" class="form-label">Enter URL to analyze:</label>
+                                    <input 
+                                        type="url" 
+                                        id="url-input" 
+                                        class="form-input"
+                                        placeholder="https://example.com" 
+                                        required
+                                        aria-describedby="url-input-help"
+                                        autocomplete="url"
+                                    />
+                                    <div id="url-input-help" class="sr-only">Enter a complete URL including http:// or https://</div>
+                                </div>
+
+                                <button 
+                                    type="button" 
+                                    id="analyze-url-btn" 
+                                    class="btn btn-primary"
+                                    aria-describedby="analyze-url-help"
+                                >
+                                    🔍 Analyze URL
+                                </button>
+                                <div id="analyze-url-help" class="sr-only">Click to analyze the URL for security threats</div>
+                            </form>
+
+                            <div id="url-results" class="results-container hidden" role="region" aria-labelledby="url-results-heading" aria-live="polite">
+                                <h4 id="url-results-heading" class="sr-only">URL Analysis Results</h4>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Manual Network Analysis Card -->
+                    <article class="card slide-in-right" style="animation-delay: 0.2s;" role="region" aria-labelledby="manual-analysis-heading">
+                        <header class="card-header">
+                            <h3 id="manual-analysis-heading" class="card-title">
+                                <span aria-hidden="true">🌐</span> Manual Network Analysis
+                            </h3>
+                            <p class="card-description">
+                                Manually input network parameters for detailed threat analysis.
+                            </p>
+                        </header>
+
+                        <div class="card-body">
+                            <form class="analysis-form" role="form" aria-labelledby="manual-analysis-heading">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="source-ip" class="form-label">Source IP:</label>
+                                        <input 
+                                            type="text" 
+                                            id="source-ip" 
+                                            class="form-input"
+                                            placeholder="192.168.1.100"
+                                            pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+                                            aria-describedby="source-ip-help"
+                                        />
+                                        <div id="source-ip-help" class="sr-only">Enter source IP address in format xxx.xxx.xxx.xxx</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dest-ip" class="form-label">Destination IP:</label>
+                                        <input 
+                                            type="text" 
+                                            id="dest-ip" 
+                                            class="form-input"
+                                            placeholder="203.0.113.1"
+                                            pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+                                            aria-describedby="dest-ip-help"
+                                        />
+                                        <div id="dest-ip-help" class="sr-only">Enter destination IP address in format xxx.xxx.xxx.xxx</div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="protocol" class="form-label">Protocol:</label>
+                                        <select id="protocol" class="form-input form-select" aria-describedby="protocol-help">
+                                            <option value="tcp">TCP</option>
+                                            <option value="udp">UDP</option>
+                                            <option value="icmp">ICMP</option>
+                                        </select>
+                                        <div id="protocol-help" class="sr-only">Select network protocol type</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="port" class="form-label">Port:</label>
+                                        <input 
+                                            type="number" 
+                                            id="port" 
+                                            class="form-input"
+                                            placeholder="80"
+                                            min="1"
+                                            max="65535"
+                                            aria-describedby="port-help"
+                                        />
+                                        <div id="port-help" class="sr-only">Enter port number between 1 and 65535</div>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    type="button" 
+                                    id="analyze-manual-btn" 
+                                    class="btn btn-primary"
+                                    aria-describedby="analyze-manual-help"
+                                >
+                                    🔍 Analyze Network
+                                </button>
+                                <div id="analyze-manual-help" class="sr-only">Click to analyze the network connection for threats</div>
+                            </form>
+
+                            <div id="manual-results" class="results-container hidden" role="region" aria-labelledby="manual-results-heading" aria-live="polite">
+                                <h4 id="manual-results-heading" class="sr-only">Manual Analysis Results</h4>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Live Network Monitoring Card -->
+                    <article class="card slide-in-right" style="animation-delay: 0.4s;" role="region" aria-labelledby="live-monitoring-heading">
+                        <header class="card-header">
+                            <h3 id="live-monitoring-heading" class="card-title">
+                                <span aria-hidden="true">📡</span> Live Network Monitoring
+                            </h3>
+                            <p class="card-description">
+                                Monitor live network connections and detect threats in real-time.
+                            </p>
+                        </header>
+
+                        <div class="card-body">
+                            <div class="scan-controls" role="group" aria-labelledby="scan-controls-heading">
+                                <h4 id="scan-controls-heading" class="sr-only">Scanning Controls</h4>
+
+                                <div class="flex gap-sm flex-wrap">
+                                    <button 
+                                        type="button" 
+                                        id="start-scan-btn" 
+                                        class="btn btn-success"
+                                        aria-describedby="start-scan-help"
+                                    >
+                                        <span aria-hidden="true">▶️</span> Start Scan
+                                    </button>
+                                    <div id="start-scan-help" class="sr-only">Start live network monitoring</div>
+
+                                    <button 
+                                        type="button" 
+                                        id="stop-scan-btn" 
+                                        class="btn btn-danger"
+                                        disabled
+                                        aria-describedby="stop-scan-help"
+                                    >
+                                        <span aria-hidden="true">⏹️</span> Stop Scan
+                                    </button>
+                                    <div id="stop-scan-help" class="sr-only">Stop live network monitoring</div>
+
+                                    <button 
+                                        type="button" 
+                                        id="download-btn" 
+                                        class="btn btn-secondary"
+                                        aria-describedby="download-help"
+                                    >
+                                        <span aria-hidden="true">📄</span> Download Report
+                                    </button>
+                                    <div id="download-help" class="sr-only">Download analysis report as CSV file</div>
+                                </div>
+
+                                <div id="scanning-indicator" class="scanning-indicator" role="status" aria-live="polite" aria-atomic="true">
+                                    <span class="loading-spinner"></span> Live scanning in progress... Monitoring network connections
+                                </div>
+                            </div>
+
+                            <div id="live-results" class="results-container hidden" role="region" aria-labelledby="live-results-heading" aria-live="polite">
+                                <h4 id="live-results-heading" class="sr-only">Live Scan Results</h4>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Message Container -->
+            <div id="message-container" role="status" aria-live="polite" aria-atomic="true"></div>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
+
+    <!-- Additional CSS for improved threat results -->
+    <style>
+    .threat-metrics {
+        display: flex;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-sm);
+        flex-wrap: wrap;
+    }
+
+    .threat-metrics span {
+        background: rgba(255, 255, 255, 0.05);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-size-xs);
+    }
+
+    .recommendations {
+        margin-top: var(--spacing-sm);
+        padding-top: var(--spacing-sm);
+        border-top: 1px solid var(--border-color);
+    }
+
+    .recommendations ul {
+        margin: var(--spacing-xs) 0 0 var(--spacing-md);
+        color: var(--text-secondary);
+    }
+
+    .recommendations li {
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .timestamp {
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+        margin-top: var(--spacing-sm);
+        padding-top: var(--spacing-sm);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .threat-icon {
+        font-size: var(--font-size-lg);
+        margin-right: var(--spacing-xs);
+    }
+
+    .model-loaded {
+        color: var(--threat-safe);
+    }
+
+    .model-simulation {
+        color: var(--threat-medium);
+    }
+
+    @media (max-width: 768px) {
+        .threat-metrics {
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .scan-controls .flex {
+            flex-direction: column;
+        }
+
+        .scan-controls .btn {
+            width: 100%;
+        }
+    }
+    </style>
+
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "NP² Cybersecurity Dashboard",
+        "description": "Advanced cybersecurity dashboard for threat detection and network monitoring",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Web Browser",
+        "featureList": [
+            "URL Threat Analysis",
+            "Network Security Analysis", 
+            "Live Network Monitoring",
+            "XGBoost AI Detection",
+            "Real-time Alerts"
+        ]
+    }
+    </script>
+</body>
+</html>
